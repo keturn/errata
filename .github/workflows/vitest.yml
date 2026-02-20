@@ -43,8 +43,9 @@ jobs:
           name: Event File
           path: ${{ github.event_path }}
 
-  publish:
+  publish_call:
     name: "Publish"
+    if: false
     # needs: [test]
     # # we run the action from this branch whenever we can (when it runs in our repo's context)
     # if: >
@@ -57,3 +58,31 @@ jobs:
       pull-requests: write
       security-events: write
       actions: read
+
+  publish_inline:
+    name: Test Results
+    runs-on: ubuntu-latest
+    needs: test
+
+    permissions:
+      checks: write
+
+      # needed unless run with comment_mode: off
+      pull-requests: write
+
+      # required by download step to access artifacts API
+      actions: read
+
+    steps:
+      - name: Download and Extract Artifacts
+        uses: dawidd6/action-download-artifact@e7466d1a7587ed14867642c2ca74b5bcc1e19a2d
+        with:
+           path: artifacts
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          commit: ${{ github.ref }}
+          event_file: artifacts/Event File/event.json
+          event_name: ${{ github.event_name }}
+          files: "artifacts/**/*.xml"
