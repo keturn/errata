@@ -11,6 +11,7 @@ on:
     workflows: ["vitest"]
     types:
       - completed
+  workflow_call:
 permissions: {}
 
 jobs:
